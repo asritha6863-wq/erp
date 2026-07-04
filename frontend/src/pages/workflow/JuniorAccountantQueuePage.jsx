@@ -4,7 +4,6 @@ import { toast } from 'react-toastify';
 import ApprovalQueueBase from '../../components/ApprovalQueueBase';
 import approvalService from '../../services/approvalService';
 import { formatCurrency, formatDate } from '../../utils/formatters';
-import { CURRENCIES } from '../../utils/constants';
 
 // ── PO + Vendor + Quotation Modal ────────────────────────────────────────────
 const POModal = ({ pr, onClose, onDone }) => {

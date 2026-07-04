@@ -15,17 +15,6 @@ const DR = ({ label, value }) => (
   </div>
 );
 
-const SectionCard = ({ icon, title, color = 'primary', children }) => (
-  <div className="card mb-3">
-    <div className="card-header py-2">
-      <span className="fw-semibold" style={{ fontSize: '0.9rem' }}>
-        <i className={`bi ${icon} me-2 text-${color}`}></i>{title}
-      </span>
-    </div>
-    <div className="card-body">{children}</div>
-  </div>
-);
-
 const PaymentRequestDetail = () => {
   const { id } = useParams();
   const { user } = useAuth();

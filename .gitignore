@@ -1,7 +1,10 @@
 node_modules/
 .env
-uploads/*
-!uploads/.gitkeep
+.env.local
+.env.production
+backend/uploads/*
+!backend/uploads/.gitkeep
 build/
 .DS_Store
 Thumbs.db
+*.log

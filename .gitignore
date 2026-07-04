@@ -1,10 +1,29 @@
+# Dependencies
 node_modules/
+*/node_modules/
+
+# Environment files (NEVER commit these)
 .env
 .env.local
 .env.production
+.env.production.local
+backend/.env
+
+# Build output
+build/
+dist/
+frontend/build/
+
+# Uploads
 backend/uploads/*
 !backend/uploads/.gitkeep
-build/
+
+# OS files
 .DS_Store
 Thumbs.db
 *.log
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/

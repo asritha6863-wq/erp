@@ -1,18 +1,53 @@
+/* ─── CSS Variables — Rose & Pink Theme ──────────────────────────────── */
+:root {
+  --primary:       #e91e8c;
+  --primary-dark:  #c2185b;
+  --primary-light: #f8bbd0;
+  --secondary:     #f06292;
+  --accent:        #ff4081;
+  --bg-main:       #fdf2f8;
+  --bg-card:       #ffffff;
+  --bg-sidebar:    #2d0a1f;
+  --bg-sidebar-2:  #1a0612;
+  --text-main:     #3d0026;
+  --text-muted:    #9c4f7c;
+  --border:        #f8bbd0;
+  --success:       #2e7d32;
+  --danger:        #c62828;
+  --warning:       #f57f17;
+  --info:          #0277bd;
+  --shadow:        rgba(233,30,140,0.12);
+}
+
 /* ─── Global Reset & Base ─────────────────────────────────────────── */
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
   font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: #f4f6f9;
-  color: #343a40;
+  background-color: var(--bg-main);
+  color: var(--text-main);
 }
+
+/* ─── Override Bootstrap primary color ───────────────────────────── */
+.btn-primary          { background-color: var(--primary) !important; border-color: var(--primary-dark) !important; }
+.btn-primary:hover    { background-color: var(--primary-dark) !important; border-color: var(--primary-dark) !important; }
+.btn-outline-primary  { color: var(--primary) !important; border-color: var(--primary) !important; }
+.btn-outline-primary:hover { background-color: var(--primary) !important; color: #fff !important; }
+.text-primary         { color: var(--primary) !important; }
+.bg-primary           { background-color: var(--primary) !important; }
+.border-primary       { border-color: var(--primary) !important; }
+.badge.bg-primary     { background-color: var(--primary) !important; }
+.nav-link.active      { background-color: var(--primary) !important; }
+.form-control:focus, .form-select:focus { border-color: var(--secondary) !important; box-shadow: 0 0 0 0.2rem rgba(233,30,140,0.2) !important; }
+a { color: var(--primary); }
+a:hover { color: var(--primary-dark); }
 
 /* ─── Sidebar ─────────────────────────────────────────────────────── */
 .sidebar {
   width: 260px;
   min-height: 100vh;
-  background: linear-gradient(180deg, #1a1f2e 0%, #141824 100%);
+  background: linear-gradient(180deg, var(--bg-sidebar) 0%, var(--bg-sidebar-2) 100%);
   transition: width 0.25s ease;
   position: fixed;
   top: 0;
@@ -54,15 +89,15 @@ body {
   transition: all 0.2s;
   white-space: nowrap;
 }
-.sidebar .nav-link:hover { background: rgba(255,255,255,0.08); color: #fff; }
-.sidebar .nav-link.active { background: #0d6efd; color: #fff; }
+.sidebar .nav-link:hover { background: rgba(233,30,140,0.25); color: #fff; }
+.sidebar .nav-link.active { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: #fff; }
 .sidebar .nav-link i { font-size: 1.05rem; min-width: 20px; }
 
 .sidebar-section-title {
   font-size: 0.65rem;
   letter-spacing: 1.2px;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.3);
+  color: rgba(255,182,193,0.45);
   padding: 1rem 1rem 0.25rem;
 }
 
@@ -80,7 +115,7 @@ body {
 .topbar {
   height: 60px;
   background: #fff;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 2px solid var(--primary-light);
   position: sticky;
   top: 0;
   z-index: 1030;
@@ -88,20 +123,31 @@ body {
   display: flex;
   align-items: center;
   gap: 1rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 12px var(--shadow);
 }
 
 /* ─── Cards ───────────────────────────────────────────────────────── */
-.card { border: none; box-shadow: 0 1px 6px rgba(0,0,0,0.06); border-radius: 12px; }
-.card-header { border-bottom: 1px solid #f0f0f0; background: #fff; border-radius: 12px 12px 0 0 !important; }
+.card {
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 2px 12px var(--shadow);
+  border-radius: 14px !important;
+  background: var(--bg-card);
+}
+.card-header {
+  border-bottom: 1px solid var(--primary-light) !important;
+  background: linear-gradient(135deg, #fff5f9, #fff) !important;
+  border-radius: 14px 14px 0 0 !important;
+}
 
 /* ─── Stat Cards ──────────────────────────────────────────────────── */
 .stat-card {
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 1.25rem;
   color: #fff;
   position: relative;
   overflow: hidden;
+  border: none !important;
+  box-shadow: 0 4px 20px var(--shadow) !important;
 }
 .stat-card .stat-icon {
   width: 52px;
@@ -114,100 +160,127 @@ body {
   font-size: 1.4rem;
 }
 .stat-card .stat-value { font-size: 2rem; font-weight: 700; line-height: 1; }
-.stat-card .stat-label { font-size: 0.82rem; opacity: 0.85; }
-
-/* ─── Workflow Badge ──────────────────────────────────────────────── */
-.workflow-badge { font-size: 0.72rem; font-weight: 600; padding: 0.3em 0.7em; border-radius: 20px; }
+.stat-card .stat-label { font-size: 0.82rem; opacity: 0.9; }
 
 /* ─── Tables ──────────────────────────────────────────────────────── */
-.table-hover tbody tr:hover { background-color: #f8f9ff; }
-.table th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; font-weight: 600; }
+.table-hover tbody tr:hover { background-color: #fff0f7 !important; }
+.table th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--primary) !important;
+  font-weight: 700;
+  background: #fff5f9;
+}
 
 /* ─── Page Header ─────────────────────────────────────────────────── */
-.page-header {
-  padding: 1.5rem 1.5rem 0;
-  margin-bottom: 1.5rem;
-}
-.page-title { font-size: 1.45rem; font-weight: 700; color: #1a1f2e; margin: 0; }
-.page-subtitle { font-size: 0.85rem; color: #6c757d; margin: 0; }
+.page-header { padding: 1.5rem 1.5rem 0; margin-bottom: 1.5rem; }
+.page-title  { font-size: 1.45rem; font-weight: 700; color: var(--primary-dark); margin: 0; }
+.page-subtitle { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
 
 /* ─── Workflow Timeline ───────────────────────────────────────────── */
 .workflow-timeline { position: relative; padding-left: 2rem; }
-.workflow-timeline::before { content: ''; position: absolute; left: 0.65rem; top: 0; bottom: 0; width: 2px; background: #e9ecef; }
+.workflow-timeline::before {
+  content: ''; position: absolute; left: 0.65rem; top: 0; bottom: 0;
+  width: 2px; background: var(--primary-light);
+}
 .workflow-step { position: relative; padding-bottom: 1.25rem; }
 .workflow-step-icon {
-  position: absolute;
-  left: -1.75rem;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.7rem;
-  border: 2px solid #fff;
-  box-shadow: 0 0 0 2px #dee2e6;
+  position: absolute; left: -1.75rem;
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; border: 2px solid #fff;
+  box-shadow: 0 0 0 2px var(--primary-light);
 }
-.workflow-step-icon.done    { background: #198754; color: #fff; box-shadow: 0 0 0 2px #198754; }
-.workflow-step-icon.active  { background: #0d6efd; color: #fff; box-shadow: 0 0 0 2px #0d6efd; }
+.workflow-step-icon.done   { background: var(--primary); color: #fff; box-shadow: 0 0 0 2px var(--primary); }
+.workflow-step-icon.active { background: var(--secondary); color: #fff; box-shadow: 0 0 0 2px var(--secondary); }
 .workflow-step-icon.pending { background: #fff; color: #adb5bd; }
 
 /* ─── Avatar ──────────────────────────────────────────────────────── */
 .avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.8rem;
-  flex-shrink: 0;
+  width: 36px; height: 36px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.8rem; flex-shrink: 0;
 }
 
 /* ─── Login Page ──────────────────────────────────────────────────── */
 .login-bg {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a1f2e 0%, #0d6efd 100%);
+  background: linear-gradient(135deg, #880e4f 0%, #e91e8c 50%, #f48fb1 100%);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .login-card {
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  border-radius: 20px !important;
+  box-shadow: 0 20px 60px rgba(136,14,79,0.35) !important;
+  border: none !important;
   width: 100%;
   max-width: 420px;
 }
 
+/* ─── Workflow Badge ──────────────────────────────────────────────── */
+.workflow-badge {
+  font-size: 0.72rem; font-weight: 600;
+  padding: 0.3em 0.7em; border-radius: 20px;
+}
+
 /* ─── Step Indicator ──────────────────────────────────────────────── */
-.step-indicator { display: flex; align-items: center; gap: 0; margin-bottom: 2rem; }
-.step-item { display: flex; flex-direction: column; align-items: center; flex: 1; }
 .step-circle {
-  width: 36px; height: 36px;
-  border-radius: 50%;
+  width: 36px; height: 36px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-weight: 700; font-size: 0.85rem;
-  background: #e9ecef; color: #6c757d;
-  border: 2px solid #dee2e6;
-  z-index: 1; position: relative;
+  background: #fce4ec; color: var(--text-muted);
+  border: 2px solid var(--primary-light); z-index: 1;
 }
-.step-circle.active  { background: #0d6efd; color: #fff; border-color: #0d6efd; }
-.step-circle.done    { background: #198754; color: #fff; border-color: #198754; }
-.step-label { font-size: 0.7rem; color: #6c757d; margin-top: 4px; text-align: center; }
-.step-line  { flex: 1; height: 2px; background: #dee2e6; margin: 0 -1px; margin-bottom: 20px; }
-.step-line.done { background: #198754; }
+.step-circle.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.step-circle.done   { background: var(--primary-dark); color: #fff; border-color: var(--primary-dark); }
+
+/* ─── Alerts / info boxes ─────────────────────────────────────────── */
+.alert-info    { background: #fce4ec !important; border-color: var(--primary-light) !important; color: var(--primary-dark) !important; }
+.bg-light-blue { background-color: #fce4ec !important; }
+.bg-light      { background-color: #fff5f9 !important; }
+
+/* ─── Nav tabs ────────────────────────────────────────────────────── */
+.nav-tabs .nav-link { color: var(--text-muted); }
+.nav-tabs .nav-link.active {
+  color: var(--primary) !important;
+  border-color: var(--primary-light) var(--primary-light) #fff !important;
+  font-weight: 600;
+}
+.nav-tabs .nav-link:hover { color: var(--primary); }
+
+/* ─── Badges ──────────────────────────────────────────────────────── */
+.badge.bg-secondary { background-color: #f8bbd0 !important; color: var(--primary-dark) !important; }
+
+/* ─── Input groups ────────────────────────────────────────────────── */
+.input-group-text { background: #fce4ec; border-color: var(--border); color: var(--primary); }
+
+/* ─── Pagination ──────────────────────────────────────────────────── */
+.page-item.active .page-link { background-color: var(--primary) !important; border-color: var(--primary) !important; }
+.page-link { color: var(--primary) !important; }
+.page-link:hover { background-color: #fce4ec !important; }
+
+/* ─── Progress bars ───────────────────────────────────────────────── */
+.progress-bar { background-color: var(--primary) !important; }
+
+/* ─── Scrollbar ───────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #fce4ec; }
+::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 10px; }
 
 /* ─── Utilities ───────────────────────────────────────────────────── */
 .cursor-pointer { cursor: pointer; }
 .text-truncate-2 { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .border-dashed { border-style: dashed !important; }
-.bg-light-blue { background-color: #e8f0fe; }
 
-/* ─── Scrollbar ───────────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: #f1f1f1; }
-::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
+/* ─── Modal ───────────────────────────────────────────────────────── */
+.modal-header { border-bottom: 2px solid var(--primary-light) !important; }
+.modal-footer { border-top: 1px solid var(--primary-light) !important; }
+
+/* ─── Dropdown ────────────────────────────────────────────────────── */
+.dropdown-item:hover { background-color: #fce4ec !important; color: var(--primary-dark) !important; }
+.dropdown-item.active { background-color: var(--primary) !important; }
 
 /* ─── Responsive ──────────────────────────────────────────────────── */
 @media (max-width: 768px) {

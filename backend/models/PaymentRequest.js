@@ -133,6 +133,19 @@ const paymentRequestSchema = new mongoose.Schema(
     rejectionReason: { type: String, default: '' },
     returnReason:    { type: String, default: '' },
 
+    // ── Priority (Feature 10) ─────────────────────────────────────────────────
+    priority: { type: String, enum: ['urgent', 'normal', 'low'], default: 'normal' },
+
+    // ── Comments Thread (Feature 9) ───────────────────────────────────────────
+    comments: [{
+      user:      { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      text:      { type: String, required: true, trim: true },
+      createdAt: { type: Date, default: Date.now },
+    }],
+
+    // ── Last step change time (for deadline reminders) ────────────────────────
+    lastStepChangedAt: { type: Date, default: Date.now },
+
     attachments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Attachment' }],
 
     submittedAt:  { type: Date, default: null },

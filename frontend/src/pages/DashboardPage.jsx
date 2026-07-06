@@ -48,9 +48,9 @@ const DashboardPage = () => {
   const barData = {
     labels: months,
     datasets: [
-      { label: 'Total', data: monthlyStats.map((m) => m.total), backgroundColor: 'rgba(13,110,253,0.7)', borderRadius: 6 },
-      { label: 'Completed', data: monthlyStats.map((m) => m.completed), backgroundColor: 'rgba(25,135,84,0.7)', borderRadius: 6 },
-      { label: 'Rejected', data: monthlyStats.map((m) => m.rejected), backgroundColor: 'rgba(220,53,69,0.7)', borderRadius: 6 },
+      { label: 'Total',     data: monthlyStats.map((m) => m.total),     backgroundColor: 'rgba(233,30,140,0.75)', borderRadius: 6 },
+      { label: 'Completed', data: monthlyStats.map((m) => m.completed), backgroundColor: 'rgba(194,24,91,0.75)',  borderRadius: 6 },
+      { label: 'Rejected',  data: monthlyStats.map((m) => m.rejected),  backgroundColor: 'rgba(240,98,146,0.65)', borderRadius: 6 },
     ],
   };
 
@@ -79,21 +79,21 @@ const DashboardPage = () => {
         {isAdmin && (
           <div className="col-6 col-md-3">
             <StatCard label="Total Users" value={stats.totalUsers} icon="bi-people-fill"
-              gradient="linear-gradient(135deg,#667eea,#764ba2)" />
+              gradient="linear-gradient(135deg,#ad1457,#c2185b)" />
           </div>
         )}
         <div className={`col-6 ${isAdmin ? 'col-md-3' : 'col-md-4'}`}>
           <StatCard label="Total Requests" value={stats.totalRequests} icon="bi-file-earmark-text-fill"
-            gradient="linear-gradient(135deg,#0d6efd,#0096c7)" />
+            gradient="linear-gradient(135deg,#e91e8c,#c2185b)" />
         </div>
         <div className={`col-6 ${isAdmin ? 'col-md-3' : 'col-md-4'}`}>
           <StatCard label="Pending" value={stats.pendingCount} icon="bi-hourglass-split"
-            gradient="linear-gradient(135deg,#ffc107,#fd7e14)"
+            gradient="linear-gradient(135deg,#f06292,#e91e8c)"
             sub={stats.myQueueCount > 0 ? `${stats.myQueueCount} in your queue` : null} />
         </div>
         <div className={`col-6 ${isAdmin ? 'col-md-3' : 'col-md-4'}`}>
           <StatCard label="Completed" value={stats.completedCount} icon="bi-check-circle-fill"
-            gradient="linear-gradient(135deg,#198754,#20c997)" />
+            gradient="linear-gradient(135deg,#880e4f,#ad1457)" />
         </div>
         {isAdmin && (
           <div className="col-6 col-md-3">

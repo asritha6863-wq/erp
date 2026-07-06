@@ -8,6 +8,7 @@ import MainLayout from './layouts/MainLayout';
 
 // Auth
 import LoginPage from './pages/LoginPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 
 // Dashboard
 import DashboardPage from './pages/DashboardPage';
@@ -47,7 +48,8 @@ function App() {
         <NotificationProvider>
           <Routes>
             {/* Public */}
-            <Route path="/login" element={<LoginPage />} />
+            <Route path="/login"           element={<LoginPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
             {/* Protected – wrapped in main layout */}

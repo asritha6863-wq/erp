@@ -59,7 +59,7 @@ const DashboardPage = () => {
   const wfData   = workflowBreakdown.map((w) => w.count);
   const doughnutData = {
     labels: wfLabels,
-    datasets: [{ data: wfData, backgroundColor: ['#0d6efd','#ffc107','#20c997','#6f42c1','#fd7e14','#dc3545','#198754','#0dcaf0','#6c757d'], borderWidth: 0 }],
+    datasets: [{ data: wfData, backgroundColor: ['#e91e8c','#c2185b','#f06292','#f48fb1','#ad1457','#880e4f','#f8bbd0','#fce4ec','#d81b60'], borderWidth: 0 }],
   };
 
   const isAdmin = user.role === 'admin';

@@ -73,7 +73,7 @@ const Sidebar = ({ collapsed }) => {
     <div className={`sidebar d-flex flex-column${collapsed ? ' collapsed' : ''}`}>
       {/* Brand */}
       <div className="sidebar-brand d-flex align-items-center gap-2">
-        <div style={{ width: 36, height: 36, borderRadius: 10, background: '#0d6efd', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <i className="bi bi-currency-exchange text-white" style={{ fontSize: '1.1rem' }}></i>
         </div>
         {!collapsed && (

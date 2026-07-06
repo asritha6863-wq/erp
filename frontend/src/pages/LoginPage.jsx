@@ -131,6 +131,11 @@ const LoginPage = () => {
                     <><i className="bi bi-box-arrow-in-right me-2"></i>Sign In</>
                   )}
                 </button>
+                <div className="text-end mt-2">
+                  <Link to="/forgot-password" style={{ fontSize: '0.82rem', color: 'var(--primary)' }} className="text-decoration-none">
+                    <i className="bi bi-question-circle me-1"></i>Forgot password?
+                  </Link>
+                </div>
               </form>
 
               {/* Demo accounts */}

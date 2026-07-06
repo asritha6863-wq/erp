@@ -107,16 +107,17 @@ const CreateRequestPage = () => {
             <div className="card-body">
               <div className="row g-3">
                 <div className="col-12">
-                  <label className="form-label fw-semibold">Request Title / Purpose *</label>
+                  <label className="form-label fw-semibold">Requirment</label>
                   <input className="form-control" value={form.title} onChange={setF('title')} placeholder="e.g. Office Equipment Purchase for New Team Members" required />
                 </div>
                 <div className="col-md-4">
                   <label className="form-label fw-semibold">Currency</label>
-                  <select className="form-select" value={form.currency} onChange={setF('currency')}>
-                    {CURRENCIES.map((c) => <option key={c}>{c}</option>)}
+                    <select className="form-select"value={form.currency} onChange={setF('currency')}>  
+                    <option value="INR">INR (Indian Rupee)</option>
+                    <option value="AED">AED (UAE Dirham)</option>
                   </select>
                 </div>
-                <div className="col-md-4">
+                  <div className="col-md-4">
                   <label className="form-label fw-semibold">Cost Center</label>
                   <input className="form-control" value={form.costCenter} onChange={setF('costCenter')} placeholder="e.g. CC-001" />
                 </div>
@@ -132,7 +133,7 @@ const CreateRequestPage = () => {
                   </select>
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label fw-semibold">Additional Notes</label>
+                  <label className="form-label fw-semibold">Purpose</label>
                   <input className="form-control" value={form.notes} onChange={setF('notes')} placeholder="Any special instructions..." />
                 </div>
               </div>

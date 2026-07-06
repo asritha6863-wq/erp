@@ -2,12 +2,9 @@
 node_modules/
 */node_modules/
 
-# Environment files (NEVER commit these)
-.env
-.env.local
-.env.production
-.env.production.local
+# Local environment files only — DO NOT commit local secrets
 backend/.env
+frontend/.env
 
 # Build output
 build/

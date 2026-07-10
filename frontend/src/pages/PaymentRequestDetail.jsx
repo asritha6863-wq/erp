@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import paymentRequestService from '../services/paymentRequestService';
 import approvalService from '../services/approvalService';
 import StatusBadge from '../components/StatusBadge';
@@ -16,8 +16,9 @@ const DR = ({ label, value }) => (
 );
 
 const PaymentRequestDetail = () => {
-  const { id } = useParams();
-  const { user } = useAuth();
+  const { id }      = useParams();
+  const { user }    = useAuth();
+  const navigate    = useNavigate();
   const [pr, setPr]               = useState(null);
   const [approvals, setApprovals] = useState([]);
   const [loading, setLoading]     = useState(true);
@@ -32,29 +33,38 @@ const PaymentRequestDetail = () => {
         ]);
         setPr(prRes.data.data);
         setApprovals(apRes.data.data);
-      } catch {}
-      finally { setLoading(false); }
+      } catch (err) {
+        console.error('Failed to load request:', err);
+      } finally {
+        setLoading(false);
+      }
     };
     load();
   }, [id]);
 
   if (loading) return <LoadingSpinner fullPage />;
-  if (!pr)     return <div className="alert alert-danger">Payment request not found.</div>;
+  if (!pr)     return (
+    <div className="text-center py-5">
+      <i className="bi bi-exclamation-circle text-danger" style={{ fontSize: '3rem' }}></i>
+      <h5 className="mt-3">Payment request not found.</h5>
+      <button className="btn btn-primary mt-2" onClick={() => navigate(-1)}>Go Back</button>
+    </div>
+  );
 
-  const canEdit = ['draft','returned'].includes(pr.currentStep) &&
+  const canEdit = ['draft', 'returned'].includes(pr.currentStep) &&
     ((user.role === 'employee' && pr.createdBy?._id === user._id) || user.role === 'admin');
 
-  const hasPO        = pr.purchaseOrder?.poNumber;
-  const hasVendor    = pr.vendor?.vendorName;
-  const hasQuotation = pr.quotation?.quotationNumber;
+  const hasPO        = !!pr.purchaseOrder?.poNumber;
+  const hasVendor    = !!pr.vendor?.vendorName;
+  const hasQuotation = !!pr.quotation?.quotationNumber;
 
   const tabs = [
-    { id: 'items',     label: 'Items',            icon: 'bi-list-ul'           },
-    { id: 'po',        label: 'PO & Vendor',       icon: 'bi-file-earmark-text', show: hasPO || hasVendor },
-    { id: 'quotation', label: 'Quotation',         icon: 'bi-receipt',           show: hasQuotation       },
-    { id: 'workflow',  label: 'Workflow Data',     icon: 'bi-diagram-3'         },
-    { id: 'documents', label: `Docs (${pr.attachments?.length || 0})`, icon: 'bi-paperclip' },
-    { id: 'approvals', label: `History (${approvals.length})`, icon: 'bi-check2-all' },
+    { id: 'items',     label: 'Items',                                   icon: 'bi-list-ul'           },
+    { id: 'po',        label: 'PO & Vendor',   show: hasPO || hasVendor, icon: 'bi-file-earmark-text' },
+    { id: 'quotation', label: 'Quotation',     show: hasQuotation,       icon: 'bi-receipt'           },
+    { id: 'workflow',  label: 'Workflow Data',                           icon: 'bi-diagram-3'         },
+    { id: 'documents', label: `Docs (${pr.attachments?.length || 0})`,   icon: 'bi-paperclip'         },
+    { id: 'approvals', label: `History (${approvals.length})`,           icon: 'bi-check2-all'        },
   ];
 
   return (
@@ -77,18 +87,30 @@ const PaymentRequestDetail = () => {
             </div>
           </div>
           <div className="d-flex gap-2">
-            {canEdit && <Link to={`/requests/${id}/edit`} className="btn btn-outline-primary btn-sm"><i className="bi bi-pencil me-1"></i>Edit</Link>}
-            <Link to={-1} className="btn btn-outline-secondary btn-sm"><i className="bi bi-arrow-left me-1"></i>Back</Link>
+            {canEdit && (
+              <Link to={`/requests/${id}/edit`} className="btn btn-outline-primary btn-sm">
+                <i className="bi bi-pencil me-1"></i>Edit
+              </Link>
+            )}
+            <button className="btn btn-outline-secondary btn-sm" onClick={() => navigate(-1)}>
+              <i className="bi bi-arrow-left me-1"></i>Back
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Alerts */}
+      {/* Status Alerts */}
       {pr.currentStep === 'rejected' && pr.rejectionReason && (
-        <div className="alert alert-danger mb-3"><i className="bi bi-x-circle me-2"></i><strong>Rejected:</strong> {pr.rejectionReason}</div>
+        <div className="alert alert-danger mb-3">
+          <i className="bi bi-x-circle me-2"></i>
+          <strong>Rejected:</strong> {pr.rejectionReason}
+        </div>
       )}
       {pr.currentStep === 'returned' && pr.returnReason && (
-        <div className="alert alert-warning mb-3"><i className="bi bi-arrow-return-left me-2"></i><strong>Returned:</strong> {pr.returnReason}</div>
+        <div className="alert alert-warning mb-3">
+          <i className="bi bi-arrow-return-left me-2"></i>
+          <strong>Returned:</strong> {pr.returnReason}
+        </div>
       )}
 
       <div className="row g-3">
@@ -99,7 +121,11 @@ const PaymentRequestDetail = () => {
               <ul className="nav nav-tabs card-header-tabs flex-wrap">
                 {tabs.filter((t) => t.show !== false).map((t) => (
                   <li key={t.id} className="nav-item">
-                    <button className={`nav-link py-2 ${activeTab === t.id ? 'active' : ''}`} onClick={() => setActiveTab(t.id)} style={{ fontSize: '0.83rem' }}>
+                    <button
+                      className={`nav-link py-2 ${activeTab === t.id ? 'active' : ''}`}
+                      onClick={() => setActiveTab(t.id)}
+                      style={{ fontSize: '0.83rem' }}
+                    >
                       <i className={`bi ${t.icon} me-1`}></i>{t.label}
                     </button>
                   </li>
@@ -108,50 +134,56 @@ const PaymentRequestDetail = () => {
             </div>
             <div className="card-body">
 
-              {/* ── Items Tab ── */}
+              {/* Items Tab */}
               {activeTab === 'items' && (
                 <div>
                   <div className="row g-2 mb-4">
                     <DR label="Request Title"  value={pr.title} />
                     <DR label="Department"     value={pr.department?.name} />
-                    <DR label="Requested By"   value={`${pr.createdBy?.firstName} ${pr.createdBy?.lastName}`} />
+                    <DR label="Requested By"   value={`${pr.createdBy?.firstName || ''} ${pr.createdBy?.lastName || ''}`} />
                     <DR label="Cost Center"    value={pr.costCenter} />
                     <DR label="Required By"    value={formatDate(pr.dueDate)} />
                     <DR label="Submitted"      value={formatDate(pr.submittedAt)} />
                     {pr.notes && <div className="col-12"><DR label="Notes" value={pr.notes} /></div>}
                   </div>
 
-                  <h6 className="fw-bold mb-3 text-primary"><i className="bi bi-list-ul me-2"></i>Requested Items</h6>
-                  <div className="table-responsive">
-                    <table className="table table-bordered table-sm">
-                      <thead className="table-light">
-                        <tr><th>#</th><th>Item Name</th><th>Description</th><th>Qty</th><th>Unit</th><th>Unit Price</th><th>Total</th></tr>
-                      </thead>
-                      <tbody>
-                        {(pr.items || []).map((item, i) => (
-                          <tr key={i}>
-                            <td>{i + 1}</td>
-                            <td className="fw-semibold">{item.itemName}</td>
-                            <td className="text-muted">{item.description || '—'}</td>
-                            <td>{item.quantity}</td>
-                            <td>{item.unit}</td>
-                            <td>{formatCurrency(item.unitPrice, pr.currency)}</td>
-                            <td className="fw-semibold">{formatCurrency(item.totalPrice, pr.currency)}</td>
+                  <h6 className="fw-bold mb-3 text-primary">
+                    <i className="bi bi-list-ul me-2"></i>Requested Items
+                  </h6>
+                  {(!pr.items || pr.items.length === 0) ? (
+                    <div className="text-muted text-center py-3">No items found</div>
+                  ) : (
+                    <div className="table-responsive">
+                      <table className="table table-bordered table-sm">
+                        <thead className="table-light">
+                          <tr><th>#</th><th>Item Name</th><th>Description</th><th>Qty</th><th>Unit</th><th>Unit Price</th><th>Total</th></tr>
+                        </thead>
+                        <tbody>
+                          {pr.items.map((item, i) => (
+                            <tr key={i}>
+                              <td>{i + 1}</td>
+                              <td className="fw-semibold">{item.itemName}</td>
+                              <td className="text-muted">{item.description || '—'}</td>
+                              <td>{item.quantity}</td>
+                              <td>{item.unit}</td>
+                              <td>{formatCurrency(item.unitPrice, pr.currency)}</td>
+                              <td className="fw-semibold">{formatCurrency(item.totalPrice, pr.currency)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                        <tfoot className="table-light">
+                          <tr>
+                            <td colSpan={6} className="text-end fw-bold">Total Amount</td>
+                            <td className="fw-bold text-primary">{formatCurrency(pr.totalAmount, pr.currency)}</td>
                           </tr>
-                        ))}
-                      </tbody>
-                      <tfoot className="table-light">
-                        <tr>
-                          <td colSpan={6} className="text-end fw-bold">Total Amount</td>
-                          <td className="fw-bold text-primary">{formatCurrency(pr.totalAmount, pr.currency)}</td>
-                        </tr>
-                      </tfoot>
-                    </table>
-                  </div>
+                        </tfoot>
+                      </table>
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* ── PO & Vendor Tab ── */}
+              {/* PO & Vendor Tab */}
               {activeTab === 'po' && (
                 <div>
                   {hasVendor && (
@@ -166,7 +198,7 @@ const PaymentRequestDetail = () => {
                         <DR label="Tax Number"     value={pr.vendor.taxNumber} />
                         {pr.vendor.address && <div className="col-12"><DR label="Address" value={pr.vendor.address} /></div>}
                         <DR label="Bank Name"      value={pr.vendor.bankName} />
-                        <DR label="Account Number" value={pr.vendor.bankAccount} />
+                        <DR label="Bank Account"   value={pr.vendor.bankAccount} />
                       </div>
                     </div>
                   )}
@@ -174,43 +206,55 @@ const PaymentRequestDetail = () => {
                     <div>
                       <h6 className="fw-bold text-primary mb-3"><i className="bi bi-file-earmark-text me-2"></i>Purchase Order</h6>
                       <div className="row g-2">
-                        <DR label="PO Number"       value={pr.purchaseOrder.poNumber} />
-                        <DR label="PO Date"         value={formatDate(pr.purchaseOrder.poDate)} />
-                        <DR label="Delivery Date"   value={formatDate(pr.purchaseOrder.deliveryDate)} />
-                        <DR label="Payment Terms"   value={pr.purchaseOrder.paymentTerms} />
-                        <DR label="Delivery Terms"  value={pr.purchaseOrder.deliveryTerms} />
-                        <DR label="Created At"      value={formatDateTime(pr.purchaseOrder.createdAt)} />
+                        <DR label="PO Number"      value={pr.purchaseOrder.poNumber} />
+                        <DR label="PO Date"        value={formatDate(pr.purchaseOrder.poDate)} />
+                        <DR label="Delivery Date"  value={formatDate(pr.purchaseOrder.deliveryDate)} />
+                        <DR label="Payment Terms"  value={pr.purchaseOrder.paymentTerms} />
+                        <DR label="Delivery Terms" value={pr.purchaseOrder.deliveryTerms} />
                         {pr.purchaseOrder.notes && <div className="col-12"><DR label="Notes" value={pr.purchaseOrder.notes} /></div>}
+                      </div>
+                      <div className="mt-3">
+                        <a
+                          href={`${process.env.REACT_APP_API_URL || 'https://erp-payment-backend-b9at.onrender.com/api'}/pdf/po/${pr._id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="btn btn-outline-primary btn-sm"
+                        >
+                          <i className="bi bi-file-pdf me-1"></i>Download PO PDF
+                        </a>
                       </div>
                     </div>
                   )}
                   {!hasPO && !hasVendor && (
                     <div className="text-center text-muted py-4">
                       <i className="bi bi-hourglass-split fs-3 d-block mb-2"></i>
-                      Waiting for Junior Accountant to create PO and enter vendor details.
+                      Waiting for Junior Accountant to create PO and vendor details.
                     </div>
                   )}
                 </div>
               )}
 
-              {/* ── Quotation Tab ── */}
+              {/* Quotation Tab */}
               {activeTab === 'quotation' && (
                 <div>
                   {hasQuotation ? (
                     <>
                       <div className="row g-2 mb-3">
-                        <DR label="Quotation #"   value={pr.quotation.quotationNumber} />
-                        <DR label="Date"          value={formatDate(pr.quotation.quotationDate)} />
-                        <DR label="Valid Until"   value={formatDate(pr.quotation.validUntil)} />
-                        <DR label="Tax Rate"      value={`${pr.quotation.taxRate || 0}%`} />
+                        <DR label="Quotation #"  value={pr.quotation.quotationNumber} />
+                        <DR label="Date"         value={formatDate(pr.quotation.quotationDate)} />
+                        <DR label="Valid Until"  value={formatDate(pr.quotation.validUntil)} />
+                        <DR label="Tax Rate"     value={`${pr.quotation.taxRate || 0}%`} />
                       </div>
                       <div className="table-responsive mb-3">
                         <table className="table table-bordered table-sm">
-                          <thead className="table-light"><tr><th>Item</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr></thead>
+                          <thead className="table-light">
+                            <tr><th>Item</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr>
+                          </thead>
                           <tbody>
                             {(pr.quotation.items || []).map((it, i) => (
                               <tr key={i}>
-                                <td>{it.itemName}</td><td>{it.quantity}</td>
+                                <td>{it.itemName}</td>
+                                <td>{it.quantity}</td>
                                 <td>{formatCurrency(it.unitPrice, pr.currency)}</td>
                                 <td>{formatCurrency(it.totalPrice, pr.currency)}</td>
                               </tr>
@@ -223,15 +267,33 @@ const PaymentRequestDetail = () => {
                           </tfoot>
                         </table>
                       </div>
-                      {pr.quotation.terms && <div className="p-3 rounded bg-light"><small className="text-muted fw-semibold">Terms:</small><div style={{ fontSize: '0.85rem' }}>{pr.quotation.terms}</div></div>}
+                      {pr.quotation.terms && (
+                        <div className="p-3 rounded bg-light">
+                          <small className="text-muted fw-semibold">Terms & Conditions:</small>
+                          <div style={{ fontSize: '0.85rem' }}>{pr.quotation.terms}</div>
+                        </div>
+                      )}
+                      <div className="mt-3">
+                        <a
+                          href={`${process.env.REACT_APP_API_URL || 'https://erp-payment-backend-b9at.onrender.com/api'}/pdf/quotation/${pr._id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="btn btn-outline-success btn-sm"
+                        >
+                          <i className="bi bi-file-pdf me-1"></i>Download Quotation PDF
+                        </a>
+                      </div>
                     </>
                   ) : (
-                    <div className="text-center text-muted py-4"><i className="bi bi-receipt fs-3 d-block mb-2"></i>Quotation not yet created.</div>
+                    <div className="text-center text-muted py-4">
+                      <i className="bi bi-receipt fs-3 d-block mb-2"></i>
+                      Quotation not yet created.
+                    </div>
                   )}
                 </div>
               )}
 
-              {/* ── Workflow Data Tab ── */}
+              {/* Workflow Data Tab */}
               {activeTab === 'workflow' && (
                 <div>
                   {pr.apVoucher?.voucherNumber && (
@@ -246,7 +308,7 @@ const PaymentRequestDetail = () => {
                   )}
                   {pr.glCoding?.glAccount && (
                     <div className="mb-4 p-3 rounded" style={{ background: '#f0f4ff', border: '1px solid #c7d7fe' }}>
-                      <h6 className="fw-bold text-primary mb-2"><i className="bi bi-journal-check me-2"></i>GL Coding (Sr. Accountant)</h6>
+                      <h6 className="fw-bold text-primary mb-2"><i className="bi bi-journal-check me-2"></i>GL Coding</h6>
                       <div className="row g-2">
                         <DR label="GL Account"    value={pr.glCoding.glAccount} />
                         <DR label="VAT Compliant" value={pr.glCoding.vatCompliant ? '✅ Yes' : '❌ No'} />
@@ -269,15 +331,15 @@ const PaymentRequestDetail = () => {
                     <div className="mb-4 p-3 rounded" style={{ background: '#f8f8f8', border: '1px solid #e2e8f0' }}>
                       <h6 className="fw-bold text-dark mb-2"><i className="bi bi-briefcase me-2"></i>Finance Review</h6>
                       <div className="row g-2">
-                        <DR label="Cash Flow OK"  value={pr.financeReview.cashFlowOk ? '✅ Yes' : '❌ No'} />
-                        <DR label="Policy OK"     value={pr.financeReview.policyOk   ? '✅ Yes' : '❌ No'} />
+                        <DR label="Cash Flow OK" value={pr.financeReview.cashFlowOk ? '✅ Yes' : '❌ No'} />
+                        <DR label="Policy OK"    value={pr.financeReview.policyOk   ? '✅ Yes' : '❌ No'} />
                         {pr.financeReview.heldReason && <div className="col-12"><DR label="Held Reason" value={pr.financeReview.heldReason} /></div>}
                       </div>
                     </div>
                   )}
                   {pr.payment && (
                     <div className="p-3 rounded" style={{ background: '#fff8e1', border: '1px solid #fde68a' }}>
-                      <h6 className="fw-bold text-warning mb-2"><i className="bi bi-bank me-2"></i>Payment (Sr. Accountant Treasury)</h6>
+                      <h6 className="fw-bold text-warning mb-2"><i className="bi bi-bank me-2"></i>Payment</h6>
                       <div className="row g-2">
                         <DR label="Payment Advice #" value={pr.payment.paymentAdviceNo} />
                         <DR label="Method"           value={pr.payment.paymentMethod} />
@@ -285,21 +347,35 @@ const PaymentRequestDetail = () => {
                         <DR label="Transaction Ref"  value={pr.payment.transactionRef} />
                         <DR label="Payment Date"     value={formatDate(pr.payment.paymentDate)} />
                         <DR label="Amount Paid"      value={formatCurrency(pr.payment.amount, pr.payment.currency)} />
-                        <DR label="Status"           value={pr.payment.status?.toUpperCase()} />
+                      </div>
+                      <div className="mt-3">
+                        <a
+                          href={`${process.env.REACT_APP_API_URL || 'https://erp-payment-backend-b9at.onrender.com/api'}/pdf/payment-advice/${pr._id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="btn btn-outline-warning btn-sm"
+                        >
+                          <i className="bi bi-file-pdf me-1"></i>Download Payment Advice PDF
+                        </a>
                       </div>
                     </div>
                   )}
                   {!pr.apVoucher?.voucherNumber && !pr.glCoding?.glAccount && !pr.payment && (
-                    <div className="text-center text-muted py-4"><i className="bi bi-hourglass-split fs-3 d-block mb-2"></i>Workflow data will appear as the request progresses.</div>
+                    <div className="text-center text-muted py-4">
+                      <i className="bi bi-hourglass-split fs-3 d-block mb-2"></i>
+                      Workflow data will appear as the request progresses.
+                    </div>
                   )}
                 </div>
               )}
 
-              {/* ── Documents Tab ── */}
+              {/* Documents Tab */}
               {activeTab === 'documents' && (
                 <div>
                   {!pr.attachments?.length ? (
-                    <div className="text-center text-muted py-4"><i className="bi bi-file-earmark-x fs-3 d-block mb-2"></i>No documents attached.</div>
+                    <div className="text-center text-muted py-4">
+                      <i className="bi bi-file-earmark-x fs-3 d-block mb-2"></i>No documents attached.
+                    </div>
                   ) : (
                     <div className="list-group">
                       {pr.attachments.map((att) => (
@@ -307,9 +383,13 @@ const PaymentRequestDetail = () => {
                           <i className="bi bi-file-earmark-text text-primary" style={{ fontSize: '1.5rem' }}></i>
                           <div className="flex-grow-1">
                             <div className="fw-semibold" style={{ fontSize: '0.88rem' }}>{att.originalName}</div>
-                            <div className="text-muted" style={{ fontSize: '0.75rem' }}>{formatFileSize(att.size)} · {att.documentType} · {formatDate(att.createdAt)}</div>
+                            <div className="text-muted" style={{ fontSize: '0.75rem' }}>
+                              {formatFileSize(att.size)} · {att.documentType} · {formatDate(att.createdAt)}
+                            </div>
                           </div>
-                          <a href={`/uploads/${att.fileName}`} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline-primary"><i className="bi bi-download"></i></a>
+                          <a href={`https://erp-payment-backend-b9at.onrender.com/uploads/${att.fileName}`} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline-primary">
+                            <i className="bi bi-download"></i>
+                          </a>
                         </div>
                       ))}
                     </div>
@@ -317,7 +397,7 @@ const PaymentRequestDetail = () => {
                 </div>
               )}
 
-              {/* ── Approvals Tab ── */}
+              {/* Approvals Tab */}
               {activeTab === 'approvals' && (
                 <div>
                   {approvals.length === 0 ? (
@@ -325,13 +405,23 @@ const PaymentRequestDetail = () => {
                   ) : (
                     <div className="table-responsive">
                       <table className="table table-sm">
-                        <thead><tr><th>Step</th><th>By</th><th>Action</th><th>Comments</th><th>Date</th></tr></thead>
+                        <thead>
+                          <tr><th>Step</th><th>By</th><th>Action</th><th>Comments</th><th>Date</th></tr>
+                        </thead>
                         <tbody>
                           {approvals.map((a) => (
                             <tr key={a._id}>
-                              <td style={{ fontSize: '0.78rem' }}><code>{a.fromStep}</code><i className="bi bi-arrow-right mx-1"></i><code>{a.toStep}</code></td>
+                              <td style={{ fontSize: '0.78rem' }}>
+                                <code>{a.fromStep}</code>
+                                <i className="bi bi-arrow-right mx-1"></i>
+                                <code>{a.toStep}</code>
+                              </td>
                               <td style={{ fontSize: '0.82rem' }}>{a.approver?.firstName} {a.approver?.lastName}</td>
-                              <td><span className={`badge ${a.action==='approved'||a.action==='forwarded'?'bg-success':a.action==='rejected'?'bg-danger':'bg-warning text-dark'}`} style={{ fontSize: '0.7rem' }}>{a.action}</span></td>
+                              <td>
+                                <span className={`badge ${a.action === 'approved' || a.action === 'forwarded' ? 'bg-success' : a.action === 'rejected' ? 'bg-danger' : 'bg-warning text-dark'}`} style={{ fontSize: '0.7rem' }}>
+                                  {a.action}
+                                </span>
+                              </td>
                               <td style={{ fontSize: '0.8rem', maxWidth: 180 }}>{a.comments || '—'}</td>
                               <td style={{ fontSize: '0.78rem', whiteSpace: 'nowrap' }}>{formatDateTime(a.actionDate)}</td>
                             </tr>
@@ -347,11 +437,17 @@ const PaymentRequestDetail = () => {
           </div>
         </div>
 
-        {/* Sidebar — Workflow Timeline */}
+        {/* Sidebar Workflow Timeline */}
         <div className="col-lg-4">
           <div className="card">
-            <div className="card-header py-2"><span className="fw-semibold" style={{ fontSize: '0.9rem' }}><i className="bi bi-diagram-3 me-2 text-primary"></i>Workflow Progress</span></div>
-            <div className="card-body"><WorkflowTimeline currentStep={pr.currentStep} approvals={approvals} /></div>
+            <div className="card-header py-2">
+              <span className="fw-semibold" style={{ fontSize: '0.9rem' }}>
+                <i className="bi bi-diagram-3 me-2 text-primary"></i>Workflow Progress
+              </span>
+            </div>
+            <div className="card-body">
+              <WorkflowTimeline currentStep={pr.currentStep} approvals={approvals} />
+            </div>
           </div>
         </div>
       </div>
